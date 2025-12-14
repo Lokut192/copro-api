@@ -1,6 +1,6 @@
 # Custom Non-Commercial License
 
-Copyright (c) 2025 [Luke Ostermann]
+Copyright (c) 2025 Luke Ostermann
 
 ## Terms and Conditions
 
@@ -32,7 +32,7 @@ You may distribute the Software and modified versions for non-commercial purpose
 
 ### 5. Commercial Licensing
 
-For commercial use, please contact [luke.ostermann@gmail.com] to obtain a commercial license.
+For commercial use, please contact <luke.ostermann@gmail.com> to obtain a commercial license.
 
 ## Disclaimer
 
