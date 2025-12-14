@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate:create": "mikro-orm migration:create",
     "migrate:up": "mikro-orm migration:up",
-    "migrate:down": "mikro-orm migration:down"
+    "migrate:down": "mikro-orm migration:down",
+    "seed": "ts-node -r tsconfig-paths/register src/helpers/database-seeder/main.ts"
   },
   "dependencies": {
     "@mikro-orm/cli": "^6.6.2",
@@ -35,10 +36,13 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.3",
+    "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "dotenv": "^17.2.3",
+    "papaparse": "^5.5.3",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "zod": "^4.1.13"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -46,9 +50,11 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
+    "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
+    "@types/papaparse": "^5.5.2",
     "@types/supertest": "^6.0.2",
     "ajv": "^8.17.1",
     "eslint": "^9.18.0",

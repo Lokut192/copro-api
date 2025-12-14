@@ -17,7 +17,8 @@ export class User {
   @Property({ hidden: true })
   password!: string;
 
-  get fullName() {
+  @Property({ persist: false })
+  get fullName(): string | undefined {
     return `${this.firstName} ${this.lastName}`;
   }
 }

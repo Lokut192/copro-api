@@ -6,7 +6,10 @@ import { GetUserDto } from './dto/get-user.dto';
 import { UsersService } from './users.service';
 
 @ApiTags('Users')
-@Controller('users')
+@Controller({
+  path: 'users',
+  version: '1',
+})
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

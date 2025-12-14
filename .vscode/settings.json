@@ -26,7 +26,8 @@
   },
   "material-icon-theme.files.associations": {
     "*.repository.ts": "Database",
-    ".variables": "Settings"
+    ".variables": "Settings",
+    ".env.docker": "Docker"
   },
   "cSpell.ignorePaths": [
     "package-lock.json",
@@ -40,6 +41,6 @@
     ".secrets*",
     ".variables*"
   ],
-  "cSpell.words": ["copro", "mikro"],
+  "cSpell.words": ["copro", "mikro", "papaparse"],
   "errorLens.excludeBySource": ["cSpell"]
 }
