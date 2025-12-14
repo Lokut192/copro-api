@@ -24,6 +24,10 @@ This is an internal todo list designed to represent achievements and future impl
 
 ## **Short-term**
 
+- [ ] 🔐 Implement authentication
+- [ ] 🧠 Define authorization strategy (Clerk, Permit.io, CASL, etc?) 
+- [ ] 🛂 Implement authorization
+
 ---
 
 ## **Medium-term**
