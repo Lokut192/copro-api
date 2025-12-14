@@ -31,6 +31,7 @@ This is an internal todo list designed to represent achievements and future impl
 - [ ] 🐳 Docker support:
   - [ ] Development environment
   - [ ] Production environment
+- [ ] 📝 Update [README.md](./README.md) to be customized for this project
 
 ---
 
