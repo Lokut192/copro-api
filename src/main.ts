@@ -43,7 +43,7 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI });
 
   // Swagger
-  const documentConfig = new DocumentBuilder()
+  const v1DocumentConfig = new DocumentBuilder()
     .setTitle('Copro API')
     .setDescription('The Copro API endpoints')
     .setVersion('1.0')
@@ -64,12 +64,12 @@ async function bootstrap() {
       },
     )
     .build();
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, documentConfig);
-  SwaggerModule.setup('swagger', app, documentFactory, {
+  const v1DocumentFactory = () =>
+    SwaggerModule.createDocument(app, v1DocumentConfig);
+  SwaggerModule.setup('swagger-v1', app, v1DocumentFactory, {
     swaggerOptions: { persistAuthorization: true },
-    jsonDocumentUrl: '/swagger.json',
-    yamlDocumentUrl: '/swagger.yaml',
+    jsonDocumentUrl: '/swagger-v1.json',
+    yamlDocumentUrl: '/swagger-v1.yaml',
   });
 
   await app.listen(port ?? 3000);
