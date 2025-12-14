@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  pg-copro:
+    image: postgres:18-alpine
+    container_name: pg-copro-db
+    environment:
+      POSTGRES_DB: copro
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - copro-network
+
+  api:
+    build: .
+    container_name: copro-api
+    ports:
+      - "3000:3000"
+    depends_on:
+      pg-copro:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    networks:
+      - copro-network
+
+volumes:
+  postgres_data:
+
+networks:
+  copro-network:
+    driver: bridge
