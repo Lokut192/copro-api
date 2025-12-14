@@ -41,6 +41,6 @@
     ".secrets*",
     ".variables*"
   ],
-  "cSpell.words": ["copro", "mikro", "papaparse"],
+  "cSpell.words": ["copro", "LICENCE", "mikro", "papaparse"],
   "errorLens.excludeBySource": ["cSpell"]
 }
