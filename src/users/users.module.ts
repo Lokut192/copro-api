@@ -4,11 +4,12 @@ import { Module } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
+import { UsersResolver } from './users.resolver';
 
 @Module({
   imports: [MikroOrmModule.forFeature([User])],
   exports: [UsersService],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, UsersResolver],
 })
 export class UsersModule {}
