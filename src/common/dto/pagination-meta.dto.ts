@@ -10,13 +10,6 @@ export class PaginationMetaDto {
   totalItems: number;
 
   @ApiProperty({
-    description: 'Number of items returned in this page',
-    example: 25,
-  })
-  @Expose()
-  itemsReturned: number;
-
-  @ApiProperty({
     description: 'Total number of pages',
     example: 6,
   })
@@ -31,7 +24,7 @@ export class PaginationMetaDto {
   currentPage: number;
 
   @ApiProperty({
-    description: 'Page size (limit)',
+    description: 'Number of items returned in this page',
     example: 25,
   })
   @Expose()

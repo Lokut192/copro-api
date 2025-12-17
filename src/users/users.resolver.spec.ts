@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 
-import { PaginationInput } from '../common/inputs/pagination.input';
 import { User } from './entities/user.entity';
+import {
+  FetchAllUsersInput,
+  OrderDirection,
+  UserOrderByField,
+} from './inputs/fetch-all-users.input';
 import { UsersResolver } from './users.resolver';
 import { UsersService } from './users.service';
 
@@ -61,7 +65,6 @@ describe('UsersResolver', () => {
         items: mockUsers,
         meta: {
           totalItems: 50,
-          itemsReturned: 2,
           totalPages: 2,
           currentPage: 1,
           currentPageSize: 25,
@@ -75,6 +78,8 @@ describe('UsersResolver', () => {
       expect(usersService.fetchAll).toHaveBeenCalledWith({
         page: undefined,
         limit: undefined,
+        orderBy: undefined,
+        order: undefined,
       });
       expect(result.items).toEqual(mockUsers);
       expect(result.meta).toEqual(mockResult.meta);
@@ -85,7 +90,6 @@ describe('UsersResolver', () => {
         items: [],
         meta: {
           totalItems: 100,
-          itemsReturned: 0,
           totalPages: 10,
           currentPage: 3,
           currentPageSize: 10,
@@ -94,15 +98,17 @@ describe('UsersResolver', () => {
 
       usersService.fetchAll.mockResolvedValue(mockResult);
 
-      const pagination = new PaginationInput();
-      pagination.page = 3;
-      pagination.limit = 10;
+      const input = new FetchAllUsersInput();
+      input.page = 3;
+      input.limit = 10;
 
-      const result = await resolver.fetchAll(pagination);
+      const result = await resolver.fetchAll(input);
 
       expect(usersService.fetchAll).toHaveBeenCalledWith({
         page: 3,
         limit: 10,
+        orderBy: UserOrderByField.LAST_NAME,
+        order: OrderDirection.ASC,
       });
       expect(result.meta).toEqual(mockResult.meta);
     });
@@ -112,7 +118,6 @@ describe('UsersResolver', () => {
         items: [],
         meta: {
           totalItems: 0,
-          itemsReturned: 0,
           totalPages: 0,
           currentPage: 1,
           currentPageSize: 25,
@@ -139,11 +144,11 @@ describe('UsersResolver', () => {
     });
 
     it('should reject limit exceeding maximum (101)', async () => {
-      const pagination = new PaginationInput();
-      pagination.page = 1;
-      pagination.limit = 101;
+      const input = new FetchAllUsersInput();
+      input.page = 1;
+      input.limit = 101;
 
-      await expect(resolver.fetchAll(pagination)).rejects.toThrow(
+      await expect(resolver.fetchAll(input)).rejects.toThrow(
         'Limit must be at most 100',
       );
 
@@ -151,11 +156,11 @@ describe('UsersResolver', () => {
     });
 
     it('should reject limit exceeding maximum (150)', async () => {
-      const pagination = new PaginationInput();
-      pagination.page = 1;
-      pagination.limit = 150;
+      const input = new FetchAllUsersInput();
+      input.page = 1;
+      input.limit = 150;
 
-      await expect(resolver.fetchAll(pagination)).rejects.toThrow(
+      await expect(resolver.fetchAll(input)).rejects.toThrow(
         'Limit must be at most 100',
       );
 
@@ -163,11 +168,11 @@ describe('UsersResolver', () => {
     });
 
     it('should reject limit below minimum (0)', async () => {
-      const pagination = new PaginationInput();
-      pagination.page = 1;
-      pagination.limit = 0;
+      const input = new FetchAllUsersInput();
+      input.page = 1;
+      input.limit = 0;
 
-      await expect(resolver.fetchAll(pagination)).rejects.toThrow(
+      await expect(resolver.fetchAll(input)).rejects.toThrow(
         'Limit must be at least 1',
       );
 
@@ -175,15 +180,123 @@ describe('UsersResolver', () => {
     });
 
     it('should reject page below minimum (0)', async () => {
-      const pagination = new PaginationInput();
-      pagination.page = 0;
-      pagination.limit = 25;
+      const input = new FetchAllUsersInput();
+      input.page = 0;
+      input.limit = 25;
 
-      await expect(resolver.fetchAll(pagination)).rejects.toThrow(
+      await expect(resolver.fetchAll(input)).rejects.toThrow(
         'Page must be at least 1',
       );
 
       expect(usersService.fetchAll).not.toHaveBeenCalled();
+    });
+
+    it('should pass ordering parameters with default values', async () => {
+      const mockResult = {
+        items: [],
+        meta: {
+          totalItems: 0,
+          totalPages: 0,
+          currentPage: 1,
+          currentPageSize: 0,
+        },
+      };
+
+      usersService.fetchAll.mockResolvedValue(mockResult);
+
+      const input = new FetchAllUsersInput();
+
+      await resolver.fetchAll(input);
+
+      expect(usersService.fetchAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 25,
+        orderBy: UserOrderByField.LAST_NAME,
+        order: OrderDirection.ASC,
+      });
+    });
+
+    it('should order by email descending', async () => {
+      const mockResult = {
+        items: [],
+        meta: {
+          totalItems: 0,
+          totalPages: 0,
+          currentPage: 1,
+          currentPageSize: 0,
+        },
+      };
+
+      usersService.fetchAll.mockResolvedValue(mockResult);
+
+      const input = new FetchAllUsersInput();
+      input.orderBy = UserOrderByField.EMAIL;
+      input.order = OrderDirection.DESC;
+
+      await resolver.fetchAll(input);
+
+      expect(usersService.fetchAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 25,
+        orderBy: UserOrderByField.EMAIL,
+        order: OrderDirection.DESC,
+      });
+    });
+
+    it('should order by firstName ascending', async () => {
+      const mockResult = {
+        items: [],
+        meta: {
+          totalItems: 0,
+          totalPages: 0,
+          currentPage: 1,
+          currentPageSize: 0,
+        },
+      };
+
+      usersService.fetchAll.mockResolvedValue(mockResult);
+
+      const input = new FetchAllUsersInput();
+      input.orderBy = UserOrderByField.FIRST_NAME;
+      input.order = OrderDirection.ASC;
+
+      await resolver.fetchAll(input);
+
+      expect(usersService.fetchAll).toHaveBeenCalledWith({
+        page: 1,
+        limit: 25,
+        orderBy: UserOrderByField.FIRST_NAME,
+        order: OrderDirection.ASC,
+      });
+    });
+
+    it('should combine pagination and ordering parameters', async () => {
+      const mockResult = {
+        items: [],
+        meta: {
+          totalItems: 50,
+          totalPages: 5,
+          currentPage: 2,
+          currentPageSize: 10,
+        },
+      };
+
+      usersService.fetchAll.mockResolvedValue(mockResult);
+
+      const input = new FetchAllUsersInput();
+      input.page = 2;
+      input.limit = 10;
+      input.orderBy = UserOrderByField.LAST_NAME;
+      input.order = OrderDirection.DESC;
+
+      await resolver.fetchAll(input);
+
+      expect(usersService.fetchAll).toHaveBeenCalledWith({
+        page: 2,
+        limit: 10,
+        orderBy: UserOrderByField.LAST_NAME,
+        order: OrderDirection.DESC,
+      });
     });
   });
 });

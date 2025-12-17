@@ -1,3 +1,4 @@
+import { QueryOrder } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { Test, TestingModule } from '@nestjs/testing';
 
@@ -62,12 +63,11 @@ describe('UsersService', () => {
 
       expect(userRepository.findAndCount).toHaveBeenCalledWith(
         {},
-        { offset: 0, limit: 25 },
+        { offset: 0, limit: 25, orderBy: { lastName: QueryOrder.ASC } },
       );
       expect(result.items).toEqual(mockUsers);
       expect(result.meta).toEqual({
         totalItems: 100,
-        itemsReturned: 2,
         totalPages: 4,
         currentPage: 1,
         currentPageSize: 2,
@@ -91,11 +91,10 @@ describe('UsersService', () => {
 
       expect(userRepository.findAndCount).toHaveBeenCalledWith(
         {},
-        { offset: 10, limit: 10 },
+        { offset: 10, limit: 10, orderBy: { lastName: QueryOrder.ASC } },
       );
       expect(result.meta).toEqual({
         totalItems: 100,
-        itemsReturned: 1,
         totalPages: 10,
         currentPage: 2,
         currentPageSize: 1,
@@ -110,7 +109,6 @@ describe('UsersService', () => {
       expect(result.items).toEqual([]);
       expect(result.meta).toEqual({
         totalItems: 0,
-        itemsReturned: 0,
         totalPages: 0,
         currentPage: 1,
         currentPageSize: 0,
@@ -133,7 +131,84 @@ describe('UsersService', () => {
 
       expect(userRepository.findAndCount).toHaveBeenCalledWith(
         {},
-        { offset: 100, limit: 50 },
+        { offset: 100, limit: 50, orderBy: { lastName: QueryOrder.ASC } },
+      );
+    });
+
+    it('should order by lastName ascending by default', async () => {
+      const mockUsers = [] as User[];
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 0]);
+
+      await service.fetchAll({});
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({
+          orderBy: { lastName: QueryOrder.ASC },
+        }),
+      );
+    });
+
+    it('should order by firstName descending', async () => {
+      const mockUsers = [] as User[];
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 0]);
+
+      await service.fetchAll({ orderBy: 'firstName', order: 'DESC' });
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({
+          orderBy: { firstName: QueryOrder.DESC },
+        }),
+      );
+    });
+
+    it('should order by lastName ascending', async () => {
+      const mockUsers = [] as User[];
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 0]);
+
+      await service.fetchAll({ orderBy: 'lastName', order: 'ASC' });
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({
+          orderBy: { lastName: QueryOrder.ASC },
+        }),
+      );
+    });
+
+    it('should order by email descending', async () => {
+      const mockUsers = [] as User[];
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 0]);
+
+      await service.fetchAll({ orderBy: 'email', order: 'DESC' });
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        expect.objectContaining({
+          orderBy: { email: QueryOrder.DESC },
+        }),
+      );
+    });
+
+    it('should combine pagination and ordering', async () => {
+      const mockUsers = [] as User[];
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 50]);
+
+      await service.fetchAll({
+        page: 2,
+        limit: 10,
+        orderBy: 'email',
+        order: 'ASC',
+      });
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        {
+          offset: 10,
+          limit: 10,
+          orderBy: { email: QueryOrder.ASC },
+        },
       );
     });
   });

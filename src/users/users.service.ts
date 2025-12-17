@@ -1,3 +1,4 @@
+import { QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { EntityRepository } from '@mikro-orm/postgresql';
 import { Injectable, Logger } from '@nestjs/common';
@@ -9,11 +10,7 @@ import {
   PAGINATION_DEFAULTS,
 } from '../common';
 import { User } from './entities/user.entity';
-
-export interface FetchAllUsersOptions {
-  page?: number;
-  limit?: number;
-}
+import { FetchAllUsersOptions } from './interfaces/fetch-all-users-options';
 
 @Injectable()
 export class UsersService {
@@ -30,12 +27,20 @@ export class UsersService {
     const {
       page = PAGINATION_DEFAULTS.PAGE,
       limit = PAGINATION_DEFAULTS.LIMIT,
+      orderBy = 'lastName',
+      order = 'ASC',
     } = options;
     const offset = calculateOffset(page, limit);
 
+    const orderDirection = order === 'DESC' ? QueryOrder.DESC : QueryOrder.ASC;
+
     const [items, totalItems] = await this.userRepository.findAndCount(
       {},
-      { offset, limit },
+      {
+        offset,
+        limit,
+        orderBy: { [orderBy]: orderDirection },
+      },
     );
 
     return createPaginatedResponse(items, totalItems, page, limit);

@@ -2,7 +2,7 @@ import { BadRequestException } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
 
 import { PAGINATION_DEFAULTS } from '../common/constants/pagination.constants';
-import { PaginationInput } from '../common/inputs/pagination.input';
+import { FetchAllUsersInput } from './inputs/fetch-all-users.input';
 import { PaginatedUsers } from './models/paginated-users.model';
 import { User } from './models/user.model';
 import { UsersService } from './users.service';
@@ -13,12 +13,12 @@ export class UsersResolver {
 
   @Query(() => PaginatedUsers, {
     name: 'users',
-    description: 'Fetch all users with pagination',
+    description: 'Fetch all users with pagination and ordering',
   })
   async fetchAll(
-    @Args('pagination', { nullable: true }) pagination?: PaginationInput,
+    @Args('input', { nullable: true }) input?: FetchAllUsersInput,
   ): Promise<PaginatedUsers> {
-    const { page, limit } = pagination || {};
+    const { page, limit, orderBy, order } = input || {};
 
     // Validate pagination parameters
     if (limit !== undefined) {
@@ -43,6 +43,8 @@ export class UsersResolver {
     return this.usersService.fetchAll({
       page,
       limit,
+      orderBy,
+      order,
     }) as Promise<PaginatedUsers>;
   }
 }

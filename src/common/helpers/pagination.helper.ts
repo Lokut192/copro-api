@@ -1,6 +1,5 @@
 export interface PaginationMeta {
   totalItems: number;
-  itemsReturned: number;
   totalPages: number;
   currentPage: number;
   currentPageSize: number;
@@ -21,7 +20,6 @@ export function createPaginatedResponse<T>(
     items,
     meta: {
       totalItems,
-      itemsReturned: items.length,
       totalPages: Math.ceil(totalItems / limit),
       currentPage: page,
       currentPageSize: items.length,

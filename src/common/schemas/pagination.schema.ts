@@ -1,9 +1,9 @@
-import { z } from 'zod';
+import z4 from 'zod/v4';
 
 import { PAGINATION_DEFAULTS } from '../constants/pagination.constants';
 
-export const paginationQuerySchema = z.object({
-  page: z.coerce
+export const paginationQuerySchema = z4.object({
+  page: z4.coerce
     .number()
     .int()
     .min(PAGINATION_DEFAULTS.MIN_PAGE, {
@@ -11,7 +11,7 @@ export const paginationQuerySchema = z.object({
     })
     .default(PAGINATION_DEFAULTS.PAGE)
     .optional(),
-  limit: z.coerce
+  limit: z4.coerce
     .number()
     .int()
     .min(PAGINATION_DEFAULTS.MIN_LIMIT, {
@@ -22,6 +22,14 @@ export const paginationQuerySchema = z.object({
     })
     .default(PAGINATION_DEFAULTS.LIMIT)
     .optional(),
+  orderBy: z4
+    .enum(['id'], 'Please provide a valid orderBy field, e.g. id')
+    .optional()
+    .default('id'),
+  order: z4
+    .enum(['ASC', 'DESC', 'asc', 'desc'], 'Please provide a valid order')
+    .optional()
+    .default('ASC'),
 });
 
-export type PaginationQuery = z.infer<typeof paginationQuerySchema>;
+export type PaginationQuery = z4.infer<typeof paginationQuerySchema>;
