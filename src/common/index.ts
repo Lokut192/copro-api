@@ -1,5 +1,8 @@
 export { ZodValidationPipe } from './pipes';
-export { PAGINATION_DEFAULTS } from './constants/pagination.constants';
+export {
+  PAGINATION_DEFAULTS,
+  PAGINATION_RESPONSE_HEADERS,
+} from './constants/pagination.constants';
 export { PaginationMetaDto } from './dto/pagination-meta.dto';
 export { PaginationInput } from './inputs/pagination.input';
 export { PaginationMeta as PaginationMetaModel } from './models/pagination-meta.model';

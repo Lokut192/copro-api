@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, Res } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -6,10 +6,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
+import { type Response } from 'express';
 
-import { ZodValidationPipe } from '../common';
+import {
+  PAGINATION_RESPONSE_HEADERS,
+  setPaginationResponseHeaders,
+  ZodValidationPipe,
+} from '../common';
 import { GetUserDto } from './dto/get-user.dto';
-import { PaginatedUsersDto } from './dto/paginated-users.dto';
 import {
   type FetchAllUsersQuery,
   fetchAllUsersQuerySchema,
@@ -57,29 +61,36 @@ export class UsersController {
   })
   @ApiOkResponse({
     description: 'Paginated list of users',
-    type: PaginatedUsersDto,
+    type: GetUserDto,
+    isArray: true,
+    headers: PAGINATION_RESPONSE_HEADERS,
   })
   async fetchAll(
     @Query(new ZodValidationPipe(fetchAllUsersQuerySchema))
     query: FetchAllUsersQuery,
+    @Res()
+    res: Response,
   ) {
     const { page, limit, orderBy, order } = query;
-    const result = await this.usersService.fetchAll({
+    const { items: users, meta } = await this.usersService.fetchAll({
       page,
       limit,
       orderBy,
       order,
     });
 
-    return plainToInstance(
-      PaginatedUsersDto,
-      {
-        items: plainToInstance(GetUserDto, result.items, {
-          excludeExtraneousValues: true,
-        }),
-        meta: result.meta,
-      },
-      { excludeExtraneousValues: true },
+    setPaginationResponseHeaders(
+      res,
+      meta.totalItems,
+      meta.totalPages,
+      meta.currentPage,
+      meta.currentPageSize,
+    );
+
+    res.send(
+      plainToInstance(GetUserDto, users, {
+        excludeExtraneousValues: true,
+      }),
     );
   }
 }
