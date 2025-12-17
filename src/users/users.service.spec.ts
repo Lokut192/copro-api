@@ -7,12 +7,12 @@ import { UsersService } from './users.service';
 describe('UsersService', () => {
   let service: UsersService;
   let userRepository: {
-    findAll: jest.Mock;
+    findAndCount: jest.Mock;
   };
 
   beforeEach(async () => {
     const mockUserRepository = {
-      findAll: jest.fn(),
+      findAndCount: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -38,7 +38,7 @@ describe('UsersService', () => {
   });
 
   describe('fetchAll', () => {
-    it('should return all users from the repository', async () => {
+    it('should return paginated users with default pagination', async () => {
       const mockUsers = [
         {
           id: 1,
@@ -56,21 +56,85 @@ describe('UsersService', () => {
         },
       ] as User[];
 
-      userRepository.findAll.mockResolvedValue(mockUsers);
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 100]);
 
       const result = await service.fetchAll();
 
-      expect(userRepository.findAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual(mockUsers);
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        { offset: 0, limit: 25 },
+      );
+      expect(result.items).toEqual(mockUsers);
+      expect(result.meta).toEqual({
+        totalItems: 100,
+        itemsReturned: 2,
+        totalPages: 4,
+        currentPage: 1,
+        currentPageSize: 2,
+      });
     });
 
-    it('should return empty array when no users exist', async () => {
-      userRepository.findAll.mockResolvedValue([]);
+    it('should calculate correct offset for page 2', async () => {
+      const mockUsers = [
+        {
+          id: 3,
+          fullName: 'Bob Johnson',
+          firstName: 'Bob',
+          lastName: 'Johnson',
+          email: 'bob@example.com',
+        },
+      ] as User[];
+
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 100]);
+
+      const result = await service.fetchAll({ page: 2, limit: 10 });
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        { offset: 10, limit: 10 },
+      );
+      expect(result.meta).toEqual({
+        totalItems: 100,
+        itemsReturned: 1,
+        totalPages: 10,
+        currentPage: 2,
+        currentPageSize: 1,
+      });
+    });
+
+    it('should handle empty results', async () => {
+      userRepository.findAndCount.mockResolvedValue([[], 0]);
 
       const result = await service.fetchAll();
 
-      expect(userRepository.findAll).toHaveBeenCalledTimes(1);
-      expect(result).toEqual([]);
+      expect(result.items).toEqual([]);
+      expect(result.meta).toEqual({
+        totalItems: 0,
+        itemsReturned: 0,
+        totalPages: 0,
+        currentPage: 1,
+        currentPageSize: 0,
+      });
+    });
+
+    it('should calculate total pages correctly', async () => {
+      userRepository.findAndCount.mockResolvedValue([[], 47]);
+
+      const result = await service.fetchAll({ limit: 10 });
+
+      expect(result.meta.totalPages).toBe(5); // Math.ceil(47 / 10)
+    });
+
+    it('should use custom page and limit values', async () => {
+      const mockUsers = [] as User[];
+      userRepository.findAndCount.mockResolvedValue([mockUsers, 50]);
+
+      await service.fetchAll({ page: 3, limit: 50 });
+
+      expect(userRepository.findAndCount).toHaveBeenCalledWith(
+        {},
+        { offset: 100, limit: 50 },
+      );
     });
   });
 });
